@@ -22,8 +22,8 @@ var ContactList = React.createClass({
   render: function () {
 
     var contactList = [
-      {name: 'Bob', address: '45 Chemin du canal'},
-      {name: 'Mary', address: '1300 René Lévesque'}
+      {name: 'Bob', address: '45 Dat Road'},
+      {name: 'Mary', address: '1300 Wat Were'}
     ];
 
     var contacts = [];
