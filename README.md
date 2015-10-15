@@ -4,6 +4,8 @@ Template to get up and running with Babel, Reactjs, Bootstrap and Webpack
 
 ## Install dependencies
 
+This assumed that you already have git, node 4.0 and npm installed.
+
     git clone git@github.com:francisl/barbew.git
     cd barbew
     npm install
