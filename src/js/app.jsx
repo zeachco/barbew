@@ -1,25 +1,35 @@
 // import * as jQuery from 'jquery';
-import React from 'react';
-import ReactDOM from 'react-dom';
+
 import $ from 'jquery';
 import 'bootstrap-webpack';
 import '../css/main.css';
 
 import { addContact, removeContact } from './actions';
-import { createStore } from 'redux';
 import contactDemoApp from './reducers';
 
-// STORE
-// Create a Redux store holding the state of your app.
-// Its API is { subscribe, dispatch, getState }.
-let store = createStore(contactDemoApp);
+import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
+import { compose, createStore } from 'redux';
+import { Provider, connect } from 'react-redux';
+import { DevTools, DebugPanel, LogMonitor } from 'redux-devtools/lib/react';
+import { devTools, persistState } from 'redux-devtools';
 
-var NewContactForm = React.createClass({
-    displayName: 'NewContactDisplay',
-    addContact: function(e){
-        debugger;
-    },
-    render: function () {
+const composeStore = compose(
+    devTools(),
+    persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+)(createStore);
+
+const store = composeStore(contactDemoApp); //, initialState);
+
+class NewContactForm extends Component {
+    addContact (e){
+        const node = this.refs.input;
+        const text = node.value.trim();
+        this.props.onAddClick(text);
+        node.value = '';
+    }
+
+    render() {
         var nameValue, addressValue;
         return (
             <div className="list-group-item">
@@ -29,14 +39,14 @@ var NewContactForm = React.createClass({
             </div>
         );
     }
-});
+}
 
-var Contact = React.createClass({
-    displayName: 'ContactDisplay',
-    removeContact: function(id){
+class Contact extends Component {
+    removeContact (id){
         store.dispatch(removeContact(id));
-    },
-    render: function () {
+    }
+
+    render () {
         return (
             <li className="list-group-item">
                 <span>{this.props.contact.name} - {this.props.contact.address}</span>
@@ -44,30 +54,41 @@ var Contact = React.createClass({
             </li>
         );
     }
-});
+}
 
-var ContactList = React.createClass({
-    displayName: 'ContactListDisplay',
-    render: function () {
-        var contacts = [];
-        this.props.contacts.forEach(function(c){
-          contacts.push(<Contact contact={c} />);
-        });
-
+class ContactList extends Component {
+    render() {
         return (
             <div className='container'>
                 <h1>Contacts</h1>
-                <ul className="list-group">{contacts}</ul>
+                <ul className="list-group">
+                    {this.props.contacts.map((c) =>
+                        <Contact contact={c} />
+                    )}</ul>
                 <NewContactForm />
             </div>
         );
     }
-});
+}
 
-store.subscribe(function () {
-    console.log('rerendering');
-    ReactDOM.render(<ContactList contacts={store.getState().contacts} />, document.getElementById('main-content'));
-});
+class MainApp extends Component {
+    render () {
+        return (<ContactList contacts={this.props.contacts} />);
+    }
+}
+var App = connect((r) => r)(MainApp);
+
+ReactDOM.render(
+    <div>
+        <Provider store={store}>
+            <App />
+        </Provider>,
+        <DebugPanel left top bottom>
+            <DevTools store={store} monitor={LogMonitor} />
+        </DebugPanel>
+    </div>
+    , document.getElementById('main-content')
+);
 
 store.dispatch(addContact('Bob', '45 Dat Road'));
 store.dispatch(addContact('Marc','1300 Wat Were'));
