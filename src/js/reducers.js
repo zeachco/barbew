@@ -9,7 +9,7 @@ const initialState = {
  * This is a reducer, a pure function with (state, action) => state signature.
  * It describes how an action transforms the state into the next state.
  */
-function contactDemoApp(state, action) {
+function contactReducers(state, action) {
     if (typeof state === 'undefined') {
         return initialState;
     }
@@ -30,4 +30,4 @@ function contactDemoApp(state, action) {
     }
 }
 
-export default contactDemoApp;
+export default contactReducers;
